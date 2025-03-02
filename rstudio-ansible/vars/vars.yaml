@@ -1,0 +1,12 @@
+# group_vars/all.yml
+
+# RUser group configuration
+ruser_group: "ruser"
+ruser_gid: 1005
+
+# LDAP settings
+ldap_uri: "ldap://aws-mgmt-ldap-itcorp-ad.olacabs.com"
+ldap_search_base: "OU=Managed Users,dc=corp,dc=ola,dc=com"
+ldap_binddn: "CN=rstudio auth,OU=Service Account,OU=Managed Users,DC=corp,DC=ola,DC=com"
+ldap_bindpw: "pH9?r!d9"
+
