@@ -1,0 +1,19 @@
+---
+- hosts: rstudio-node
+  become: true
+  name: main task
+  vars_files:
+    - ../vars/vars.yaml
+  tasks:
+    - name: prerequisites
+      include_tasks: prerequisites.yaml
+    - name: R installation
+      include_tasks: R-installation.yaml
+    - name: install workbench
+      include_tasks: install-workbench.yaml
+    - name: configure workbench
+      include_tasks: nslcd-config.yaml
+    - name: restart service
+      service:
+        name: rstudio-server
+        state: restarted

@@ -1,0 +1,57 @@
+# /etc/nslcd.conf 
+
+uid nslcd
+gid nslcd
+threads 50
+
+#debug 0
+
+# The location at which the LDAP server(s) should be reachable.
+
+uri {{ ldap_uri }}
+
+timelimit 0
+bind_timelimit 30
+
+# The search base that will be used for all queries.
+base {{ ldap_search_base }}
+
+pam_password_prohibit_message "ldap auth messedup"
+# The LDAP protocol version to use.
+ldap_version 3
+
+# The DN to bind with for normal lookups.
+binddn {{ ldap_binddn }}
+bindpw {{ ldap_bindpw }}
+
+ignorecase yes
+
+# Mappings for Active Directory
+# This is the important bit; these fields match up with the fields added by Directory Services for UNIX
+pagesize 3000
+#referrals no
+filter passwd (&(objectCategory=person)(objectClass=user))
+map    passwd uid              sAMAccountName
+map    passwd homeDirectory    "${unixHomeDirectory:-/home/$sAMAccountName}"
+map    passwd gecos            sAMAccountName
+
+#mapping userID with employeeID
+map passwd uidNumber employeeID
+
+#mapping groupID with 1005. Make sure a group called ruser or anyother name with groupId 1005 exists on the server
+map passwd  gidNumber "{{ ruser_group_id }}"
+
+# If you wish to override the shell given by LDAP, uncomment the next line
+map    passwd loginShell       "/bin/bash"
+
+filter shadow (&(objectCategory=person)(objectClass=user))
+map    shadow uid              sAMAccountName
+map    shadow shadowLastChange pwdLastSet
+#filter group  (&(objectClass=group)(gidNumber=*))
+#map    group  gid              member
+# The DN used for password modifications by root.
+#rootpwmoddn cn=admin,dc=example,dc=com
+
+# SSL options
+#ssl off
+tls_reqcert never

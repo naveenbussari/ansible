@@ -1,0 +1,46 @@
+---
+- name: install nslcd tools
+  apt:
+    name: nslcd
+    state: present
+
+- name: install other ldap utils
+  apt:
+    name:
+      - libnss-ldapd 
+      - libpam-ldapd 
+      - ldap-utils 
+      - nscd
+    state: present
+    update_cache: yes
+
+- name: get existing stat of nslcd.conf
+  stat:
+    path: /etc/nslcd.conf
+  register: nslcd_conf
+
+- name: Configuring nslcd.conf from template
+  template: 
+    src: ../templates/nslcd.conf.j2
+    dest: /etc/nslcd.conf
+    owner: "{{ nslcd_conf.stat.pw_name }}"
+    group: "{{ nslcd_conf.stat.gr_name }}"
+    mode: "{{ nslcd_conf.stat.mode | string }}"
+
+- name: copying nsswitch config file
+  copy:
+    src: ../files/nsswitch.conf
+    dest: /etc/nsswitch.conf
+    mode: '0644'
+
+
+- name: restart nslcd service
+  service:
+      name: "{{ item }}"
+      state: restarted
+      enabled: yes
+  loop: 
+    - nslcd
+    - nscd
+
+

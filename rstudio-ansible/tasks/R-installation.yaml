@@ -1,44 +1,40 @@
 ---
-name: R installation task
-hosts: rstudio_node
-become: true
-tasks:
-  - name: update indices
-    apt:
-      update_cache: yes
 
-  - name: install helper packages:
-  # apt install --no-install-recommends software-properties-common dirmngr
-    apt:
-      name: 
-        - software-properties-common
-        - dirmngr
-      state: present
-      install_recommends: no
+- name: update indices
+  apt:
+    update_cache: yes
 
-  - name: add CRAN signing key for R repository
-    apt_key:
-      url: https://cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc
-      state: present
+- name: install helper packages
+  apt:
+    name: 
+      - software-properties-common
+      - dirmngr
+    state: present
+    install_recommends: no
 
-  - name: Add CRAN repo
-  # adding cran repository. here R 4.0 cran repo is added.
-  #{{ ansible_lsb.codename }} which dynamically inserts the Ubuntu release codename (like focal or bionic)
-    apt_repository: 
-      repo: "deb https://cloud.r-project.org/bin/linux/ubuntu {{ ansible_lsb.codename }}-cran40/"
-      state: present
+- name: add CRAN signing key for R repository
+  apt_key:
+    url: https://cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc
+    state: present
 
-  - name: R installation
-    apt:
-      name: rbase
-      state: present
-      install_recommends: no
+- name: Add CRAN repo
+# adding cran repository. here R 4.0 cran repo is added.
+#{{ ansible_lsb.codename }} which dynamically inserts the Ubuntu release codename (like focal or bionic)
+  apt_repository: 
+    repo: "deb https://cloud.r-project.org/bin/linux/ubuntu {{ ansible_lsb.codename }}-cran40/"
+    state: present
 
-  - name: check R installation based on version output
-    command: "R --version"
-    register: R_version_output
-    changed_when: false
+- name: R installation
+  apt:
+    name: r-base
+    state: present
+    install_recommends: no
 
-  - name: Display R version
-    debug:
-      var: R_version_output
+- name: check R installation based on version output
+  command: "R --version"
+  register: R_version_output
+  changed_when: false
+
+- name: Display R version
+  debug:
+    var: R_version_output

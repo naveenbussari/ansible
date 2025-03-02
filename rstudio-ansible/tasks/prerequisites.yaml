@@ -1,20 +1,30 @@
 ---
-- name: os pre-requisites
-  hosts: rtsudio-node
-  become: true
-  tasks:
-    - name: update apt cache
-      ansible.builtin.apt:
-        update_cache: yes
+
+- name: update apt cache
+  ansible.builtin.apt:
+    update_cache: yes
 # while installing packages, state can be present(package exists) if already installed, Ansible won't take any further action regarding installation., absent(remove if exists), latest (upgrade if exists)    
-    - name: install default jdk
-      ansible.builtin.apt:
-        name: default-jdk
-        state: present
+- name: install default jdk
+  ansible.builtin.apt:
+    name: default-jdk
+    state: present
 
-    - name: install default jre
-      apt:
-        name: default-jre
-        state: present
+- name: install default jre
+  apt:
+    name: default-jre
+    state: present
 
-    
+- name: create group for rusers
+  group: 
+    name: "{{ ruser_group }}"
+    state: present
+
+- name: Get the group ID of the created user
+  shell: getent group {{ ruser_group }} | cut -d: -f3
+  register: ruser_gid
+  changed_when: false
+
+- name: Store the group ID as a fact
+  set_fact:
+    ruser_group_id: "{{ ruser_gid.stdout }}"
+
